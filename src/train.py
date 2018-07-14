@@ -10,7 +10,8 @@ def build_model():
 def train(model, x, y, checkpoint_every=100):
     pass
 
-def validate(model, x, y)
+def validate(model, x, y):
+    pass
 
 dataset = load_data('~/speech')
 
@@ -20,6 +21,6 @@ train_x, test_x, train_y, test_y = \
 
 model = build_model()
 
-train()
+train(model, train_x, train_y)
 
-results = validate()
+results = validate(model, test_x, test_y)
