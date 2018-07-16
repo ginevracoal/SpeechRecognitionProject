@@ -106,15 +106,22 @@ def train(model, x, y):
 def validate(model, x, y):
     pass
 
-dataset = load_data('/galileo/home/userexternal/ffranchi/speech')
+config = {
+    'data_path': '/galileo/home/userexternal/ffranchi/speech',
+    'n_classes': 36,
+    'split_seed': 44,
+    'data_func': 'spectrogram',
+    'model_name': 'simple'
+}
 
-seed = 44
+dataset = load_data(config['data_path'])
+
 train_x, test_x, train_y, test_y = \
-        train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=seed)
+        train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=config['split_seed'])
 
-train_set = SamplesVector(train_x, train_y, 'spectrogram')
+train_set = SamplesVector(train_x, train_y, config['data_func'])
 
-model = build_model(train_set.sampleshape, 36)
+model = build_model(train_set.sampleshape, config['n_classes'], name=config['model_name'])
 model.summary()
 
 model.fit_generator(train_set)
