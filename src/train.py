@@ -1,5 +1,8 @@
 import os
 import keras
+import numpy as np
+from scipy import signal
+from scipy.io import wavfile
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D
 from sklearn.model_selection import train_test_split
@@ -7,6 +10,31 @@ from sklearn.model_selection import train_test_split
 import utils
 
 sample_shape = (1025, 71, 1)
+
+
+class SamplesVector(keras.utils.Sequence):
+
+    sampleshape = (1025, 71)
+
+    def __init__(self, x, y, transformation_func):
+        self.x, self.y = x, y
+        self.transformation_func = transformation_func
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, idx):
+        sample = self.transformation_func(self.x[idx])
+        padding_size = sample.shape[1] < sampleshape[1]
+        if padding_size:
+            sample = np.pad(sample, ((0, 0), (0, padding_size)), 'constant')
+        return (sample, self.y[idx])
+
+
+def wav2spectrogram(filename):
+    sampling_rate, samples = wavfile.read(filename)
+    f, t, spectrogram = signal.spectrogram(samples, sampling_rate, nfft=2048)
+    return spectrogram
 
 def load_data(dirname):
     print('Loading data from the filesystem ({})'.format(dirname))
@@ -75,6 +103,8 @@ dataset = load_data('/galileo/home/userexternal/ffranchi/speech')
 seed = 44
 train_x, test_x, train_y, test_y = \
         train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=seed)
+
+train_set = SamplesVector(train_x, train_y, wav2spectrogram)
 
 model = build_model()
 
