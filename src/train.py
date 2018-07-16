@@ -100,12 +100,6 @@ def build_model(input_shape, n_output, name='simple'):
         raise NotImplementedError
 
 
-def train(model, x, y):
-    pass
-
-def validate(model, x, y):
-    pass
-
 config = {
     'data_path': '/galileo/home/userexternal/ffranchi/speech',
     'n_classes': 36,
@@ -120,12 +114,12 @@ train_x, test_x, train_y, test_y = \
         train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=config['split_seed'])
 
 train_set = SamplesVector(train_x, train_y, config['data_func'])
+test_set = SamplesVector(test_x, test_y, config['data_func'])
 
 model = build_model(train_set.sampleshape, config['n_classes'], name=config['model_name'])
 model.summary()
 
-model.fit_generator(train_set)
+model.fit_generator(train_set, validation_data=test_set)
 
 utils.save_model(model, '_'.join((config['model_name'], config['data_func'])))
 
-results = validate(model, test_x, test_y)
