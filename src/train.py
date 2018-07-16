@@ -4,29 +4,40 @@ import numpy as np
 from scipy import signal
 from scipy.io import wavfile
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D
+from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D, Flatten
 from sklearn.model_selection import train_test_split
 
 import utils
 
 class SamplesVector(keras.utils.Sequence):
 
-    sampleshape = (1025, 71)
-
-    def __init__(self, x, y, transformation_func):
+    def __init__(self, x, y, transformation_type, batch_size=25):
         self.x, self.y = x, y
-        self.transformation_func = transformation_func
+        self.batch_size = batch_size
+        if transformation_type == 'spectrogram':
+            self.sampleshape = (1025, 71, 1)
+            self.transformation_func = wav2spectrogram
+        elif transformation_type == 'mfcc':
+            raise NotImplementedError
+        else:
+            raise NotImplementedError
 
     def __len__(self):
-        return len(self.x)
+        return int(np.ceil(len(self.x) / float(self.batch_size)))
 
     def __getitem__(self, idx):
-        sample = self.transformation_func(self.x[idx])
-        padding_size = sample.shape[1] < sampleshape[1]
-        if padding_size:
-            sample = np.pad(sample, ((0, 0), (0, padding_size)), 'constant')
-        return (sample, self.y[idx])
+        batch_x = []
+        batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
+        for x in self.x[idx * self.batch_size:(idx + 1) * self.batch_size]:
+            sample = self.transformation_func(x)
+            padding_size = self.sampleshape[1] - sample.shape[1]
+            if padding_size:
+                sample = np.pad(sample, ((0, 0), (0, padding_size)), 'constant')
+            batch_x.append(sample.reshape(self.sampleshape))
+
+        return np.array(batch_x), np.array(batch_y)
+        
 
 def wav2spectrogram(filename):
     sampling_rate, samples = wavfile.read(filename)
@@ -50,8 +61,8 @@ def load_data(dirname):
     classes = set(dataset['y'])
     print(len(classes), 'classes found: ', ', '.join(classes))
 
-    print('Converting classes to integers')
     dataset['y'] = [utils.class2int_map[x] for x in dataset['y']]
+    dataset['y'] = keras.utils.to_categorical(dataset['y'])
 
     return dataset
 
@@ -59,7 +70,7 @@ def load_data(dirname):
 def build_simple_model(input_shape, n_output):
     model = Sequential()
 
-    model.add(Conv2D(64, (20, 8), activation='relu', input_shape=input_shape + (1,)))
+    model.add(Conv2D(64, (20, 8), activation='relu', input_shape=input_shape))
     model.add(Dropout(0.25))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -67,6 +78,7 @@ def build_simple_model(input_shape, n_output):
     model.add(Dropout(0.25))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
+    model.add(Flatten())
     model.add(Dense(n_output, activation='softmax'))
 
     model.compile(loss=keras.losses.categorical_crossentropy,
@@ -100,10 +112,11 @@ seed = 44
 train_x, test_x, train_y, test_y = \
         train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=seed)
 
-train_set = SamplesVector(train_x, train_y, wav2spectrogram)
+train_set = SamplesVector(train_x, train_y, 'spectrogram')
 
 model = build_model(train_set.sampleshape, 36)
+model.summary()
 
-train(model, train_x, train_y)
+model.fit_generator(train_set)
 
 results = validate(model, test_x, test_y)
