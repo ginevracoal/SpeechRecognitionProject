@@ -126,4 +126,6 @@ model.summary()
 
 model.fit_generator(train_set)
 
+utils.save_model(model, '_'.join((config['model_name'], config['data_func'])))
+
 results = validate(model, test_x, test_y)
