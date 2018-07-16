@@ -1,7 +1,12 @@
 import os
+import keras
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D
 from sklearn.model_selection import train_test_split
 
 import utils
+
+sample_shape = (1025, 71, 1)
 
 def load_data(dirname):
     print('Loading data from the filesystem ({})'.format(dirname))
@@ -26,10 +31,40 @@ def load_data(dirname):
     return dataset
 
 
-def build_model():
-    pass
+def build_simple_model():
+    n_out_class = len(utils.class2int_map)
+    model = Sequential()
 
-def train(model, x, y, checkpoint_every=100):
+    model.add(Conv2D(64, (20, 8), activation='relu', input_shape=sample_shape))
+    model.add(Dropout(0.25))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Conv2D(64, (10, 4), activation='relu', input_shape=sample_shape))
+    model.add(Dropout(0.25))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
+    model.add(Dense(n_out_class, activation='softmax'))
+
+    model.compile(loss=keras.losses.categorical_crossentropy,
+        optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
+
+    return model
+
+
+def build_trlrn_model():
+    raise NotImplementedError
+
+
+def build_model(name='simple'):
+    if name == 'simple':
+        return build_simple_model()
+    elif name == 'trlrn':
+        return build_trlrn_model()
+    else:
+        raise NotImplementedError
+
+
+def train(model, x, y):
     pass
 
 def validate(model, x, y):
