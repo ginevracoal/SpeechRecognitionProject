@@ -20,7 +20,7 @@ class SamplesVector(keras.utils.Sequence):
             self.transformation_func = preprocessing.wav2lgspectrogram
         elif transformation_type == 'mfcc':
             self.sampleshape = (20, 11, 1)
-            self.transformation_func = preprocessing.wav2lgspectrogram
+            self.transformation_func = preprocessing.wav2mfcc
         else:
             raise NotImplementedError
 
@@ -88,7 +88,7 @@ dataset = load_data(config['data_path'])
 train_x, test_x, train_y, test_y = \
         train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=config['split_seed'])
 
-train_set = SamplesVector(train_x, train_y, config['data_func'])
+train_set = SamplesVector(train_x, train_y, config['data_func'], batch_size=100)
 test_set = SamplesVector(test_x, test_y, config['data_func'])
 
 model = build_model(train_set.sampleshape, config['n_classes'], name=config['model_name'])
