@@ -13,10 +13,14 @@ class SamplesVector(keras.utils.Sequence):
         self.x, self.y = x, y
         self.batch_size = batch_size
         if transformation_type == 'spectrogram':
-            self.sampleshape = (1025, 71, 1)
+            self.sampleshape = (129, 71, 1)
             self.transformation_func = preprocessing.wav2spectrogram
+        elif transformation_type == 'lgspectrogram':
+            self.sampleshape = (1025, 71, 1)
+            self.transformation_func = preprocessing.wav2lgspectrogram
         elif transformation_type == 'mfcc':
-            raise NotImplementedError
+            self.sampleshape = (20, 11, 1)
+            self.transformation_func = preprocessing.wav2mfcc
         else:
             raise NotImplementedError
 
@@ -75,7 +79,7 @@ config = {
     'data_path': '/galileo/home/userexternal/ffranchi/speech',
     'n_classes': 36,
     'split_seed': 44,
-    'data_func': 'spectrogram',
+    'data_func': 'mfcc',
     'model_name': 'simple'
 }
 
@@ -84,7 +88,7 @@ dataset = load_data(config['data_path'])
 train_x, test_x, train_y, test_y = \
         train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=config['split_seed'])
 
-train_set = SamplesVector(train_x, train_y, config['data_func'])
+train_set = SamplesVector(train_x, train_y, config['data_func'], batch_size=100)
 test_set = SamplesVector(test_x, test_y, config['data_func'])
 
 model = build_model(train_set.sampleshape, config['n_classes'], name=config['model_name'])
