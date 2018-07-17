@@ -45,33 +45,19 @@ class SamplesVector(keras.utils.Sequence):
     def __init__(self, x, y, transformation_type, batch_size=25):
         self.x, self.y = x, y
         self.batch_size = batch_size
-        if transformation_type == 'spectrogram':
-            self.sampleshape = (129, 71, 1)
-            self.transformation_func = preprocessing.wav2spectrogram
-        elif transformation_type == 'lgspectrogram':
-            self.sampleshape = (1025, 71, 1)
-            self.transformation_func = preprocessing.wav2lgspectrogram
-        elif transformation_type == 'mfcc':
-            self.sampleshape = (20, 11, 1)
-            self.transformation_func = preprocessing.wav2mfcc
-        else:
-            raise NotImplementedError
 
     def __len__(self):
         return int(np.ceil(len(self.x) / float(self.batch_size)))
 
     def __getitem__(self, idx):
-        batch_x = []
+        batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
-        for x in self.x[idx * self.batch_size:(idx + 1) * self.batch_size]:
-            sample = self.transformation_func(x)
-            padding_size = self.sampleshape[1] - sample.shape[1]
-            if padding_size:
-                sample = np.pad(sample, ((0, 0), (0, padding_size)), 'constant')
-            batch_x.append(sample.reshape(self.sampleshape))
-
         return np.array(batch_x), np.array(batch_y)
+    
+    @property
+    def sampleshape(self):
+        return self.x[0].shape
 
 
 def load_data(dirname, func_name, n_classes):
@@ -89,7 +75,7 @@ def load_data(dirname, func_name, n_classes):
     dataset = {'x': [], 'y': []}
     for root, dirs, files in os.walk(dirname):
         currentdir = os.path.basename(root)
-        if not currentdir.startswith('_'):
+        if not currentdir.startswith('_') and root != dirname:
 
             cachefile = os.path.join(root, 'vector_' + func_name + '.npy')
             if os.path.exists(cachefile):
@@ -130,8 +116,9 @@ config = {
     'data_path': '/galileo/home/userexternal/ffranchi/speech',
     'n_classes': 36,
     'split_seed': 44,
-    'data_func': 'mfcc',
-    'model_name': 'simple'
+    'data_func': 'spectrogram',
+    'model_name': 'simple',
+    'epochs': 50
 }
 
 dataset = load_data(config['data_path'], config['data_func'], config['n_classes'])
@@ -139,17 +126,13 @@ dataset = load_data(config['data_path'], config['data_func'], config['n_classes'
 train_x, test_x, train_y, test_y = \
         train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=config['split_seed'])
 
-for i in range():
-    print(train_x[i], train_y[i])
-exit()
-
 train_set = SamplesVector(train_x, train_y, config['data_func'], batch_size=100)
 test_set = SamplesVector(test_x, test_y, config['data_func'])
 
 model = build_model(train_set.sampleshape, config['n_classes'], name=config['model_name'])
 model.summary()
 
-model.fit_generator(train_set, validation_data=test_set)
+model.fit_generator(train_set, validation_data=test_set, epochs=config['epochs'])
 
 utils.save_model(model, '_'.join((config['model_name'], config['data_func'])))
 
