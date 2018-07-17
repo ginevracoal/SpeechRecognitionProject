@@ -19,7 +19,8 @@ class SamplesVector(keras.utils.Sequence):
             self.sampleshape = (1025, 71, 1)
             self.transformation_func = preprocessing.wav2lgspectrogram
         elif transformation_type == 'mfcc':
-            raise NotImplementedError
+            self.sampleshape = (20, 11, 1)
+            self.transformation_func = preprocessing.wav2lgspectrogram
         else:
             raise NotImplementedError
 
@@ -78,7 +79,7 @@ config = {
     'data_path': '/galileo/home/userexternal/ffranchi/speech',
     'n_classes': 36,
     'split_seed': 44,
-    'data_func': 'spectrogram',
+    'data_func': 'mfcc',
     'model_name': 'simple'
 }
 
