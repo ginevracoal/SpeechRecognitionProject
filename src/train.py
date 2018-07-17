@@ -13,8 +13,11 @@ class SamplesVector(keras.utils.Sequence):
         self.x, self.y = x, y
         self.batch_size = batch_size
         if transformation_type == 'spectrogram':
-            self.sampleshape = (1025, 71, 1)
+            self.sampleshape = (129, 71, 1)
             self.transformation_func = preprocessing.wav2spectrogram
+        elif transformation_type == 'lgspectrogram':
+            self.sampleshape = (1025, 71, 1)
+            self.transformation_func = preprocessing.wav2lgspectrogram
         elif transformation_type == 'mfcc':
             raise NotImplementedError
         else:
