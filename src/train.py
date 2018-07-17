@@ -1,13 +1,11 @@
 import os
 import keras
 import numpy as np
-from scipy import signal
-from scipy.io import wavfile
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D, Flatten
 from sklearn.model_selection import train_test_split
 
 import utils
+import models
+import preprocessing
 
 class SamplesVector(keras.utils.Sequence):
 
@@ -16,7 +14,7 @@ class SamplesVector(keras.utils.Sequence):
         self.batch_size = batch_size
         if transformation_type == 'spectrogram':
             self.sampleshape = (1025, 71, 1)
-            self.transformation_func = wav2spectrogram
+            self.transformation_func = preprocessing.wav2spectrogram
         elif transformation_type == 'mfcc':
             raise NotImplementedError
         else:
@@ -38,11 +36,6 @@ class SamplesVector(keras.utils.Sequence):
 
         return np.array(batch_x), np.array(batch_y)
         
-
-def wav2spectrogram(filename):
-    sampling_rate, samples = wavfile.read(filename)
-    f, t, spectrogram = signal.spectrogram(samples, sampling_rate, nfft=2048)
-    return spectrogram
 
 def load_data(dirname):
     print('Loading data from the filesystem ({})'.format(dirname))
@@ -67,35 +60,13 @@ def load_data(dirname):
     return dataset
 
 
-def build_simple_model(input_shape, n_output):
-    model = Sequential()
-
-    model.add(Conv2D(64, (20, 8), activation='relu', input_shape=input_shape))
-    model.add(Dropout(0.25))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-
-    model.add(Conv2D(64, (10, 4), activation='relu'))
-    model.add(Dropout(0.25))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-
-    model.add(Flatten())
-    model.add(Dense(n_output, activation='softmax'))
-
-    model.compile(loss=keras.losses.categorical_crossentropy,
-        optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
-
-    return model
-
-
-def build_trlrn_model(input_shape, n_output):
-    raise NotImplementedError
-
-
 def build_model(input_shape, n_output, name='simple'):
     if name == 'simple':
-        return build_simple_model(input_shape, n_output)
+        return models.build_simple(input_shape, n_output)
+    elif name == 'tfclone':
+        return models.build_tfclone(input_shape, n_output)
     elif name == 'trlrn':
-        return build_trlrn_model(input_shape, n_output)
+        return models.build_trlrn(input_shape, n_output)
     else:
         raise NotImplementedError
 
