@@ -1,8 +1,43 @@
+from preprocess import *
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
+from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D, AveragePooling2D
 from keras.utils import to_categorical
+from keras.models import model_from_json
 
+# # Feature dimension
+feature_dim_1 = 20
+feature_dim_2 = 11
+channel = 1
+epochs = 50
+batch_size = 100
+verbose = 1
+num_classes = 35 # 35 without background noise
+
+path = "/galileo/home/userexternal/gcarbone/group/keras_CNN/trained_models/"
+
+def save_model(trained_model, model_name):
+    # serialize model to JSON
+    model_json = trained_model.to_json()
+    with open(path + model_name + '.json', "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    trained_model.save_weights('trained_models/' + model_name + '.h5')
+    print("Saved model to disk")
+
+def load_model(model_name):
+    # load json and create model
+    json_file = open(path + model_name + '.json', 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights('trained_models/' + model_name + '.h5')
+    print("Loaded model from disk")
+    return(loaded_model)
+
+# this is the example from here: 
+# https://blog.manash.me/building-a-dead-simple-word-recognition-engine-using-convnet-in-keras-25e72c19c12b
 def model_1():
     model = Sequential()
     # 32 2x2 neurons -> 32 19x10 objects
@@ -32,16 +67,18 @@ def model_1():
                   metrics=['accuracy'])
     return model
 
+# this one is inspired to vgg16
 def model_2():
 
     model = Sequential()
 
     model.add(Conv2D(64, kernel_size=(2,2), activation='relu', input_shape=(20, 11, 1)))
     model.add(Conv2D(64, kernel_size=(2,2), activation='relu'))    
-    model.add(MaxPooling2D(pool_size=(2,2)))
 
     model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))    
     model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
+
+    # one max pooling is enough! I get 9x5 images (45 components, which is grater than the number of classes)
     model.add(MaxPooling2D(pool_size=(2,2)))
 
     model.add(Flatten())
@@ -60,14 +97,19 @@ def model_3():
 
     model.add(Conv2D(64, kernel_size=(2,2), activation='relu', input_shape=(20, 11, 1)))
     model.add(Conv2D(64, kernel_size=(2,2), activation='relu'))    
-    model.add(MaxPooling2D(pool_size=(2,2)))
 
     model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))    
     model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2,2)))
+    
+    # model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))    
+    # model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))    
+
+    model.add(AveragePooling2D(pool_size=(2,2)))
 
     model.add(Flatten())
     model.add(Dropout(0.5))
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dropout(0.5))
     model.add(Dense(64, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(35, activation='softmax'))
@@ -79,40 +121,41 @@ def model_3():
     return model
 
 
-def model_4():
 
-    model = Sequential()
+# def model_4():
 
-    model.add(Conv2D(64, kernel_size=(2,2), activation='relu', input_shape=(20, 11, 1)))
-    model.add(Conv2D(64, kernel_size=(2,2), activation='relu'))    
-    model.add(MaxPooling2D(pool_size=(2,2)))
+#     model = Sequential()
 
-    model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
-    model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2,2)))
+#     model.add(Conv2D(64, kernel_size=(2,2), activation='relu', input_shape=(20, 11, 1)))
+#     model.add(Conv2D(64, kernel_size=(2,2), activation='relu'))    
+#     model.add(MaxPooling2D(pool_size=(2,2)))
 
-#     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
-#     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
-#     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
-#     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
+#     model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
+#     model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
+#     model.add(MaxPooling2D(pool_size=(2,2)))
 
-#     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-#     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-#     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-#     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
+# #     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
+# #     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
+# #     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
+# #     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
 
-#     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-#     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-#     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-#     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
+# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
+# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
+# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
+# #     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
 
-    model.add(Flatten())
-    model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(35, activation='softmax'))
+# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
+# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
+# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
+# #     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
 
-    model.compile(loss=keras.losses.categorical_crossentropy,
-                  optimizer=keras.optimizers.Adadelta(),
-                  metrics=['accuracy'])
+#     model.add(Flatten())
+#     model.add(Dense(64, activation='relu'))
+#     model.add(Dropout(0.5))
+#     model.add(Dense(35, activation='softmax'))
+
+#     model.compile(loss=keras.losses.categorical_crossentropy,
+#                   optimizer=keras.optimizers.Adadelta(),
+#                   metrics=['accuracy'])
     
-    return model
+#     return model

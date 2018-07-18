@@ -5,8 +5,8 @@ from keras.utils import to_categorical
 import numpy as np
 from tqdm import tqdm
 
-DATA_PATH = "../data/speech/"
-out_dir = "arrays/"
+DATA_PATH = "/galileo/home/userexternal/gcarbone/group/data/speech/"
+out_dir = "/galileo/home/userexternal/gcarbone/group/keras_CNN/arrays/"
 
 # here I also have png files:
 # DATA_PATH = "/gpfs/scratch/userexternal/ffranchi/speech/"
@@ -15,7 +15,7 @@ out_dir = "arrays/"
 # Output: Tuple (Label, Indices of the labels, one-hot encoded labels)
 def get_labels(path=DATA_PATH):
     labels = os.listdir(path)
-    discard = ['LICENSE','README.md','filenames.csv','testing_list.txt','validation_list.txt','background_noise']
+    discard = ['LICENSE','README.md','filenames.csv','testing_list.txt','validation_list.txt','_background_noise_']
     
     for label in discard:
         labels.remove(label)
@@ -27,8 +27,12 @@ def get_labels(path=DATA_PATH):
 # Handy function to convert wav2mfcc
 def wav2mfcc(file_path, max_len=11):
     wave, sr = librosa.load(file_path, mono=True, sr=None)
+    
+
     wave = wave[::3]
-    mfcc = librosa.feature.mfcc(wave, sr=16000)
+    
+    # sr is the sampling rate
+    mfcc = librosa.feature.mfcc(wave, sr=16000) #, n_mfcc=, hop_length=)
 
     # If maximum length exceeds mfcc lengths then pad the remaining ones
     if (max_len > mfcc.shape[1]):

@@ -33,7 +33,7 @@ def get_model():
     model.add(Conv2D(48, kernel_size=(2, 2), activation='relu'))
     # 120 2x2 neurons -> 120 17x8 objects
     model.add(Conv2D(120, kernel_size=(2, 2), activation='relu'))
-    # 2x2 pooling (stride=2) -> 120 9x4 objects
+    # 2x2 pooling (stride=2) -> 1 9x4 object
     model.add(MaxPooling2D(pool_size=(2, 2)))
     # randomly setting 25% of values to 0 (to prevent overfitting) -> same shape as before
     model.add(Dropout(0.25))
