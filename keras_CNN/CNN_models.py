@@ -4,6 +4,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D, AveragePooling2D
 from keras.utils import to_categorical
 from keras.models import model_from_json
+from keras.models import load_model
+import json
 
 # # Feature dimension
 feature_dim_1 = 20
@@ -17,24 +19,59 @@ num_classes = 35 # 35 without background noise
 path = "/galileo/home/userexternal/gcarbone/group/keras_CNN/trained_models/"
 
 def save_model(trained_model, model_name):
-    # serialize model to JSON
+    ## save the history as a dictionary for following plots
+    history_dict=trained_model.history.history
+    json.dump(history_dict, open(path + model_name + '_history.json','w'))
+
+    ## serialize model to JSON
     model_json = trained_model.to_json()
     with open(path + model_name + '.json', "w") as json_file:
         json_file.write(model_json)
-    # serialize weights to HDF5
-    trained_model.save_weights('trained_models/' + model_name + '.h5')
+    
+    ## serialize weights to HDF5 (but this only saves the weights!!!)
+    trained_model.save_weights(path + model_name + '.h5')
+
     print("Saved model to disk")
 
 def load_model(model_name):
-    # load json and create model
+    ## load the history
+    history = open(path + model_name + '_history.json', 'r')
+    history_dict = json.load(history)
+    history.close()
+
+    ## load json and create model
     json_file = open(path + model_name + '.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
-    # load weights into new model
-    loaded_model.load_weights('trained_models/' + model_name + '.h5')
+    
+    ## load weights into new model
+    loaded_model.load_weights(path + model_name + '.h5')
+
     print("Loaded model from disk")
-    return(loaded_model)
+
+    return(loaded_model, history_dict)
+
+
+def plot_history(history):
+    
+    # summarize history for accuracy
+    plt.plot(history['acc'])
+    plt.plot(history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+
+    # summarize history for loss
+    plt.plot(history['loss'])
+    plt.plot(history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
 
 # this is the example from here: 
 # https://blog.manash.me/building-a-dead-simple-word-recognition-engine-using-convnet-in-keras-25e72c19c12b
