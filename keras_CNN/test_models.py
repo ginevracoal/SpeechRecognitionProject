@@ -8,7 +8,6 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 from keras.utils import to_categorical
 from keras.models import model_from_json
-
 import sys
 
 DATA_PATH = "/galileo/home/userexternal/gcarbone/group/data/speech/"
@@ -35,12 +34,12 @@ X_test = X_test.reshape(X_test.shape[0], feature_dim_1, feature_dim_2, channel)
 y_train_hot = to_categorical(y_train)
 y_test_hot = to_categorical(y_test)
 
-## taking a subset to test the job
-# n = 100
-# X_train = X_train[:n]
-# X_test = X_test[:n//2]
-# y_train_hot = y_train_hot[:n]
-# y_test_hot = y_test_hot[:n//2]
+# taking a subset to test the job
+n = 300
+X_train = X_train[:n]
+X_test = X_test[:n//2]
+y_train_hot = y_train_hot[:n]
+y_test_hot = y_test_hot[:n//2]
 
 ## with this piece of code I can give the name as an input both from command line and as console input ;)
 if __name__ == "__main__":

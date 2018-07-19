@@ -5,6 +5,7 @@ from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D, AverageP
 from keras.utils import to_categorical
 from keras.models import model_from_json
 from keras.models import load_model
+import matplotlib.pyplot as plt
 import json
 
 # # Feature dimension
