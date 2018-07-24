@@ -7,5 +7,5 @@
 #SBATCH --partition=gll_usr_gpuprod
 #SBATCH --account=uts18_bortoldl_0
 
-. virtual_jupyter/bin/activate
-python /galileo/home/userexternal/gcarbone/group/keras_CNN/save_data_to_array.py
+. source virtualenv_2/bin/activate
+python /galileo/home/userexternal/gcarbone/group/keras_CNN/save_data_to_array.py > save_array_32.out

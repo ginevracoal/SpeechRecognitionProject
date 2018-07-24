@@ -1,4 +1,4 @@
-import librosa
+# import librosa
 import os
 from sklearn.model_selection import train_test_split
 from keras.utils import to_categorical
@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 DATA_PATH = "/galileo/home/userexternal/gcarbone/group/data/speech/"
-out_dir = "/galileo/home/userexternal/gcarbone/group/keras_CNN/arrays/"
+out_dir = "/galileo/home/userexternal/gcarbone/group/keras_CNN/arrays_32/"
 
 # here I also have png files:
 # DATA_PATH = "/gpfs/scratch/userexternal/ffranchi/speech/"
@@ -28,11 +28,11 @@ def get_labels(path=DATA_PATH):
 def wav2mfcc(file_path, max_len=11):
     wave, sr = librosa.load(file_path, mono=True, sr=None)
     
-
-    wave = wave[::3]
+    # downsampling
+    wave = wave#[::3]
     
     # sr is the sampling rate
-    mfcc = librosa.feature.mfcc(wave, sr=16000) #, n_mfcc=, hop_length=)
+    mfcc = librosa.feature.mfcc(wave, sr=16000, n_mfcc=32) #, n_mfcc=, hop_length=)
 
     # If maximum length exceeds mfcc lengths then pad the remaining ones
     if (max_len > mfcc.shape[1]):

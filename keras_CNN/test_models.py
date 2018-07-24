@@ -19,10 +19,10 @@ labels, _, _ = get_labels()
 X_train, X_test, y_train, y_test = get_train_test()
 
 ## Feature dimension
-feature_dim_1 = 20
-feature_dim_2 = 11
+feature_dim_1 = 32
+feature_dim_2 = 32
 channel = 1
-epochs = 50
+epochs = 10
 batch_size = 100
 verbose = 1
 num_classes = len(labels) # 35 without background noise
@@ -34,12 +34,12 @@ X_test = X_test.reshape(X_test.shape[0], feature_dim_1, feature_dim_2, channel)
 y_train_hot = to_categorical(y_train)
 y_test_hot = to_categorical(y_test)
 
-# taking a subset to test the job
-n = 300
-X_train = X_train[:n]
-X_test = X_test[:n//2]
-y_train_hot = y_train_hot[:n]
-y_test_hot = y_test_hot[:n//2]
+## taking a subset to test the job
+# n = 300
+# X_train = X_train[:n]
+# X_test = X_test[:n//2]
+# y_train_hot = y_train_hot[:n]
+# y_test_hot = y_test_hot[:n//2]
 
 ## with this piece of code I can give the name as an input both from command line and as console input ;)
 if __name__ == "__main__":
