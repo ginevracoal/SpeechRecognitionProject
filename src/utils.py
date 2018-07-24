@@ -1,9 +1,14 @@
+import json
 
 def save_model(model, filename):
     print("Saving model and weight")
+
     with open(filename + '.json', 'w') as f:
         f.write(model.to_json())
+
     model.save_weights(filename + '.h5')
+
+    json.dump(model.history.history, open(filename + '_history.json','w'))
 
 class2int_map = {
     'speech': 0,

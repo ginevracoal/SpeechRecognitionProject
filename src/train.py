@@ -1,4 +1,5 @@
 import os
+import sys
 import keras
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -69,6 +70,8 @@ def load_data(dirname, func_name, n_classes):
         transform = preprocessing.wav2lgspectrogram
     elif func_name == 'mfcc':
         transform = preprocessing.wav2mfcc
+    elif func_name == 'mfcc_tl':
+        transform = preprocessing.wav2mfcc_tl
     else:
         raise NotImplementedError
 
@@ -106,8 +109,12 @@ def build_model(input_shape, n_output, name='simple'):
         return models.build_simple(input_shape, n_output)
     elif name == 'tfclone':
         return models.build_tfclone(input_shape, n_output)
-    elif name == 'trlrn':
-        return models.build_trlrn(input_shape, n_output)
+    elif name == 'trlrn_resnet':
+        return models.build_trlrn_resnet(input_shape, n_output)
+    elif name == 'trlrn_mobilenet':
+        return models.build_trlrn_mobilenet(input_shape, n_output)
+    elif name == 'trlrn_vgg':
+        return models.build_trlrn_vgg(input_shape, n_output)
     else:
         raise NotImplementedError
 
@@ -116,10 +123,14 @@ config = {
     'data_path': '/galileo/home/userexternal/ffranchi/speech',
     'n_classes': 36,
     'split_seed': 44,
-    'data_func': 'spectrogram',
+    'data_func': 'mfcc',
     'model_name': 'simple',
     'epochs': 50
 }
+
+if len(sys.argv) == 3:
+    config['data_func'] = sys.argv[1]
+    config['model_name'] = sys.argv[2]
 
 dataset = load_data(config['data_path'], config['data_func'], config['n_classes'])
 
