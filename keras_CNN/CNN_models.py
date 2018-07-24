@@ -9,28 +9,30 @@ import matplotlib.pyplot as plt
 import json
 
 # # Feature dimension
-feature_dim_1 = 20
-feature_dim_2 = 11
+feature_dim_1 = 32
+feature_dim_2 = 32
 channel = 1
 epochs = 50
 batch_size = 100
+kernel_size = (3,3)
 verbose = 1
 num_classes = 35 # 35 without background noise
+input_shape=(feature_dim_1, feature_dim_2, channel)
 
 path = "/galileo/home/userexternal/gcarbone/group/keras_CNN/trained_models/"
 
 def save_model(trained_model, model_name):
     ## save the history as a dictionary for following plots
     history_dict=trained_model.history.history
-    json.dump(history_dict, open(path + model_name + '_history.json','w'))
+    json.dump(history_dict, open(path + model_name + '_32_history.json','w'))
 
     ## serialize model to JSON
     model_json = trained_model.to_json()
-    with open(path + model_name + '.json', "w") as json_file:
+    with open(path + model_name + '_32.json', "w") as json_file:
         json_file.write(model_json)
     
     ## serialize weights to HDF5 (but this only saves the weights!!!)
-    trained_model.save_weights(path + model_name + '.h5')
+    trained_model.save_weights(path + model_name + '_32.h5')
 
     print("Saved model to disk")
 
@@ -54,7 +56,7 @@ def load_model(model_name):
     return(loaded_model, history_dict)
 
 
-def plot_history(history):
+def plot_accuracy(history):
     
     # summarize history for accuracy
     plt.plot(history['acc'])
@@ -65,6 +67,7 @@ def plot_history(history):
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
 
+def plot_loss(history):
     # summarize history for loss
     plt.plot(history['loss'])
     plt.plot(history['val_loss'])
@@ -74,17 +77,19 @@ def plot_history(history):
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
 
+
 # this is the example from here: 
 # https://blog.manash.me/building-a-dead-simple-word-recognition-engine-using-convnet-in-keras-25e72c19c12b
 def model_1():
     model = Sequential()
     # 32 2x2 neurons -> 32 19x10 objects
-    model.add(Conv2D(32, kernel_size=(2, 2), activation='relu', input_shape=(feature_dim_1, feature_dim_2, channel)))
+    model.add(Conv2D(32, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
     # 48 2x2 neurons -> 48 18x9 objects
-    model.add(Conv2D(48, kernel_size=(2, 2), activation='relu'))
+    model.add(Conv2D(48, kernel_size=kernel_size, activation='relu'))
     # 120 2x2 neurons -> 120 17x8 objects
-    model.add(Conv2D(120, kernel_size=(2, 2), activation='relu'))
+    model.add(Conv2D(120, kernel_size=kernel_size, activation='relu'))
     # 2x2 pooling (stride=2) -> 1 9x4 object
+    model.add(MaxPooling2D(pool_size=(4, 4)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     # randomly setting 25% of values to 0 (to prevent overfitting) -> same shape as before
     model.add(Dropout(0.25))
@@ -110,13 +115,13 @@ def model_2():
 
     model = Sequential()
 
-    model.add(Conv2D(64, kernel_size=(2,2), activation='relu', input_shape=(20, 11, 1)))
-    model.add(Conv2D(64, kernel_size=(2,2), activation='relu'))    
+    model.add(Conv2D(64, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
+    model.add(Conv2D(64, kernel_size=kernel_size, activation='relu'))    
 
-    model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))    
-    model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
+    model.add(Conv2D(128, kernel_size=kernel_size, activation='relu'))    
+    model.add(Conv2D(128, kernel_size=kernel_size, activation='relu'))
 
-    # one max pooling is enough! I get 9x5 images (45 components, which is grater than the number of classes)
+    # one max pooling is enough!
     model.add(MaxPooling2D(pool_size=(2,2)))
 
     model.add(Flatten())
@@ -133,23 +138,20 @@ def model_3():
 
     model = Sequential()
 
-    model.add(Conv2D(64, kernel_size=(2,2), activation='relu', input_shape=(20, 11, 1)))
-    model.add(Conv2D(64, kernel_size=(2,2), activation='relu'))    
+    model.add(Conv2D(32, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
+    model.add(Conv2D(64, kernel_size=kernel_size, activation='relu'))    
+    model.add(Conv2D(128, kernel_size=kernel_size, activation='relu'))    
+    model.add(Conv2D(256, kernel_size=kernel_size, activation='relu'))    
 
-    model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))    
-    model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
-    
-    # model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))    
-    # model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))    
-
-    model.add(AveragePooling2D(pool_size=(2,2)))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Dropout(0.5))
 
     model.add(Flatten())
     model.add(Dropout(0.5))
-    # model.add(Dense(128, activation='relu'))
-    # model.add(Dropout(0.5))
-    model.add(Dense(64, activation='relu'))
+    model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dropout(0.5))
     model.add(Dense(35, activation='softmax'))
 
     model.compile(loss=keras.losses.categorical_crossentropy,
@@ -160,40 +162,59 @@ def model_3():
 
 
 
-# def model_4():
+def model_4():
 
-#     model = Sequential()
-
-#     model.add(Conv2D(64, kernel_size=(2,2), activation='relu', input_shape=(20, 11, 1)))
-#     model.add(Conv2D(64, kernel_size=(2,2), activation='relu'))    
-#     model.add(MaxPooling2D(pool_size=(2,2)))
-
-#     model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
-#     model.add(Conv2D(128, kernel_size=(2,2), activation='relu'))
-#     model.add(MaxPooling2D(pool_size=(2,2)))
-
-# #     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
-# #     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
-# #     model.add(Conv2D(256, kernel_size=(2,2), activation='relu'))
-# #     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
-
-# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-# #     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
-
-# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-# #     model.add(Conv2D(512, kernel_size=(2,2), activation='relu'))
-# #     model.add(MaxPooling2D(pool_size=(2,2)))#, strides=(2,2)))
-
-#     model.add(Flatten())
-#     model.add(Dense(64, activation='relu'))
-#     model.add(Dropout(0.5))
-#     model.add(Dense(35, activation='softmax'))
-
-#     model.compile(loss=keras.losses.categorical_crossentropy,
-#                   optimizer=keras.optimizers.Adadelta(),
-#                   metrics=['accuracy'])
     
-#     return model
+    model = Sequential()
+
+    model.add(Conv2D(32, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
+    model.add(Conv2D(64, kernel_size=kernel_size, activation='relu'))   
+    model.add(Dropout(0.25))
+ 
+    model.add(Conv2D(128, kernel_size=kernel_size, activation='relu'))    
+    # model.add(Conv2D(256, kernel_size=kernel_size, activation='relu'))    
+    model.add(Dropout(0.25))
+
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Dropout(0.25))
+
+    model.add(AveragePooling2D(pool_size=(2,2)))
+    model.add(Dropout(0.25))
+
+
+    model.add(Flatten())
+    model.add(Dense(128, activation='relu'))
+    model.add(Dropout(0.5))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dropout(0.5))
+    model.add(Dense(35, activation='softmax'))
+
+    model.compile(loss=keras.losses.categorical_crossentropy,
+                  optimizer=keras.optimizers.Adadelta(),
+                  metrics=['accuracy'])
+    
+    return model
+
+
+def model_5():
+
+    model = Sequential()
+
+    model.add(Conv2D(64, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
+    model.add(Conv2D(64, kernel_size=kernel_size, activation='relu'))    
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Dropout(0.5))
+
+    model.add(Conv2D(128, kernel_size=kernel_size, activation='relu'))    
+    model.add(Conv2D(128, kernel_size=kernel_size, activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Dropout(0.2))
+
+    model.add(Flatten())
+    model.add(Dense(35, activation='softmax'))
+
+    model.compile(loss=keras.losses.categorical_crossentropy,
+                  optimizer=keras.optimizers.Adadelta(),
+                  metrics=['accuracy'])
+    
+    return model
