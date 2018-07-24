@@ -15,7 +15,8 @@ def wav2spectrogram(filename, max_len=71):
 
 def wav2lgspectrogram(filename, max_len=71):
     sampling_rate, samples = wavfile.read(filename)
-    f, t, spectrogram = signal.spectrogram(samples, sampling_rate, nfft=2048)
+    f, t, spectrogram = signal.spectrogram(samples, sampling_rate)
+    spectrogram = np.log(spectrogram)
 
     if (max_len > spectrogram.shape[1]):
         pad_width = max_len - spectrogram.shape[1]
