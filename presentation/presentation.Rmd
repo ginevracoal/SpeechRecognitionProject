@@ -15,10 +15,114 @@ editor_options:
 always_allow_html: yes
 ---
 
+
+## Deep learning for speech recognition, an overview
+
+- Letteratura? cosa si può usare? cosa si usava prima del diplearning?
+
+- We used CNN's
+
+## CNN's for speech recognition
+
+
+<div align="center">
+<img src="./images/features.png" width="800" height="200" />
+
+</div>
+
+## Type of possible features
+
+- time domain : raw audio data (intensity vs time)
+- frequency domain : spectrogram
+- MFCC : Mel frequency Cepstral coefficients
+
+Why? Because it's possible to frame the problem as an image recognition one.
+
+
+## MFCC's computation steps
+
+- Divide the signal in uniformly spaced windows (30ms each)
+- Compute the power spectrum of each interval
+- Apply the mel filterbank to the power spectrum (mimics human cochlea)
+mel gives the spacing for applying the filterbank, narrower for low frequencies and wider for high.
+- Take the logarithm (we are not linear listeners)
+- Compute the Discrete cosine transform to decorrelate the filterbanks
+
+Why it's useful? Because we pass from a 16000 elements of a 16KHz sampled 1 sec length signal to a 12*33 array!
+
+## A more intuitive view
+
+<div align="center">
+<img src="./images/mfcc.jpg" width="700" height="500" />
+
+</div>
+
+
+##Python translation of all this:
+
+
+
+```{r, engine='python', echo = TRUE,eval=FALSE}
+
+import librosa
+
+wave = librosa.load("file_audio_path", mono=True, sr=None)
+mfcc = librosa.feature.mfcc(wave, sr=16000)
+
+
+```
+- Librosa is a python package for music and audio analysis, the used function is build upon Scipy for the FFT computation.
+
+##An example from our dataset:
+
+
+
+<div align="center">
+<img src="./images/sound.png" width="800" height="300" />
+<img src="./images/mfccs.png" width="800" height="150" />
+
+</div>
+
+
+## An overview of the dataset:
+
+
+
+<div align="center">
+<img src="./images/dataset_info.png" width="700" height="500" />
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Convolutional Neural Networks {.flexbox .vcenter}
 
 <div align='center'>
-Now that each audio file has been converted into an image we can apply CNNs for **image classification** of the MFCCs.
+Now that each audio file has been converted into an bidimensional array we can apply CNNs for **image classification** of the MFCCs.
 
 <img src="images/spectrogram_cnn.png" width=600>
 </div>
