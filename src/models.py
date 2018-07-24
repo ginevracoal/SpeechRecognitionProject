@@ -35,7 +35,7 @@ def build_tfclone(input_shape, n_output):
     model.add(Dense(n_output, activation='softmax'))
 
     model.compile(loss=keras.losses.categorical_crossentropy,
-        optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
+        optimizer=keras.optimizers.SGD(), metrics=['accuracy'])
 
     return model
 
