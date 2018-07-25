@@ -47,21 +47,21 @@ def build_tfclone(input_shape, n_output):
 
 
 def build_trlrn_vgg(input_shape, n_output):
-    pretrained_net = MobileNet(include_top=False)
+    pretrained_net = VGG16(include_top=False)
 
     for layer in pretrained_net.layers[:-4]:
         layer.trainable = False
 
     model = Sequential()
 
-    model.add(Conv2D(3, (2, 2), input_shape=input_shape))
+    model.add(Conv2D(3, (3, 3), input_shape=input_shape))
     model.add(UpSampling2D(size=(4, 4)))
 
     model.add(pretrained_net)
 
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.5))
     model.add(Dense(n_output, activation='softmax'))
 
     model.compile(loss=keras.losses.categorical_crossentropy,
@@ -78,14 +78,14 @@ def build_trlrn_resnet(input_shape, n_output):
 
     model = Sequential()
 
-    model.add(Conv2D(3, (2, 2), input_shape=input_shape))
+    model.add(Conv2D(3, (3, 3), input_shape=input_shape))
     model.add(UpSampling2D(size=(4, 4)))
 
     model.add(pretrained_net)
 
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.5))
     model.add(Dense(n_output, activation='softmax'))
 
     model.compile(loss=keras.losses.categorical_crossentropy,
@@ -102,14 +102,14 @@ def build_trlrn_mobilenet(input_shape, n_output):
 
     model = Sequential()
 
-    model.add(Conv2D(3, (2, 2), input_shape=input_shape))
+    model.add(Conv2D(3, (3, 3), input_shape=input_shape))
     model.add(UpSampling2D(size=(4, 4)))
 
     model.add(pretrained_net)
 
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.5))
     model.add(Dense(n_output, activation='softmax'))
 
     model.compile(loss=keras.losses.categorical_crossentropy,

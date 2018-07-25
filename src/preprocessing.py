@@ -24,10 +24,9 @@ def wav2lgspectrogram(filename, max_len=71):
     
     return spectrogram[:,:,np.newaxis]
 
-def wav2mfcc(filename, max_len=11):
+def wav2mfcc(filename, max_len=32):
     wave, sr = librosa.load(filename, mono=True, sr=None)
-    wave = wave[::3]
-    mfcc = librosa.feature.mfcc(wave, sr=16000)
+    mfcc = librosa.feature.mfcc(wave, sr=16000, n_mfcc=64)
     
     if (max_len > mfcc.shape[1]):
         pad_width = max_len - mfcc.shape[1]
