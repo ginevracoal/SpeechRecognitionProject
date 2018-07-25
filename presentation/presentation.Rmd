@@ -276,55 +276,9 @@ Now we're going to see accuracy and loss performances of some CNN models.
 
 They all have been **trained on 63497 samples** and **validated on 42332 samples** in each epoch, with batches of size 100.
 
-<!-- model 1 -->
 
 
 
-## Convolutional Neural Networks | Multiple dropouts + 2 poolings {.flexbox .vcenter}
-
-``` python
-
-model = Sequential()
-
-model.add(Conv2D(32, kernel_size=(2,2), activation='relu', input_shape=(32,32,1)))
-model.add(Conv2D(48, kernel_size=(2,2), activation='relu'))
-model.add(Conv2D(120, kernel_size=(2,2), activation='relu'))
-
-model.add(MaxPooling2D(pool_size=(4, 4)))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
-
-model.add(Flatten())
-model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.25))
-
-model.add(Dense(64, activation='relu'))
-model.add(Dropout(0.4))
-
-model.add(Dense(35, activation='softmax'))
-model.compile(loss=keras.losses.categorical_crossentropy,
-              optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
-
-```
-
-## Convolutional Neural Networks | Multiple dropouts + 2 poolings {.flexbox .vcenter}
-
-<!-- questo ci ha messo circa 1 minuto per epoch... quindi -->
-
-300s/epoch 
-
-50 epochs
-
-<img src="images/model_1_accuracy.png" width=450>
-<img src="images/model_1_loss.png" width=450>
-
-<!-- data augmentation for overfitting 
-https://www.learnopencv.com/image-classification-using-convolutional-neural-networks-in-keras/-->
-
-<!-- model 2 -->
-
-
-<!-- model 4 -->
 ## Convolutional Neural Networks | Increasing convolutions + many dropouts {.flexbox .vcenter}
 
 ``` python
@@ -355,7 +309,7 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 
 ## Convolutional Neural Networks | Increasing convolutions + many dropouts {.flexbox .vcenter}
 
-360s/epoch 10 epochs
+360s/epoch - 10 epochs
 
 <img src="images/model_4_accuracy.png" width=450>
 <img src="images/model_4_loss.png" width=450>
@@ -364,6 +318,8 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 
 
 <!-- model 2 -->
+
+
 ## Convolutional Neural Networks | Repeated convolutions + 1 pooling {.flexbox .vcenter}
 
 ``` python
@@ -390,9 +346,7 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 
 ## Convolutional Neural Networks | Repeated convolutions + 1 pooling {.flexbox .vcenter}
 
-700s/epoch
-
-20 epochs
+700s/epoch - 20 epochs
 
 <img src="images/model_2_accuracy.png" width=450>
 <img src="images/model_2_loss.png" width=450>
@@ -400,6 +354,9 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 
 
 <!-- model 3 -->
+
+
+
 ## Convolutional Neural Networks | Increasing convolutions + 3 dropouts {.flexbox .vcenter}
 
 ``` python
@@ -428,14 +385,54 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 
 ## Convolutional Neural Networks | Increasing convolutions + 3 dropouts {.flexbox .vcenter}
 
-900s/epoch
-
-10 epochs
+900s/epoch - 10 epochs
 
 <img src="images/model_3_accuracy.png" width=450>
 <img src="images/model_3_loss.png" width=450>
 
-##Testing the results on unseen data
+##Testing the results on unseen data | Multiple dropouts + 2 poolings + BatchNormalization {.flexbox .vcenter}
+
+Train 31748, Validation 31749, Test 42332 
+
+``` python
+
+model = Sequential()
+model.add(BatchNormalization())
+model.add(Conv2D(32, kernel_size=(2,2), activation='relu', input_shape=(32,32,1)))
+model.add(Conv2D(48, kernel_size=(2,2), activation='relu'))
+model.add(Conv2D(120, kernel_size=(2,2), activation='relu'))
+
+model.add(MaxPooling2D(pool_size=(4, 4)))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+model.add(Flatten())
+model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.25))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.4))
+
+model.add(Dense(35, activation='softmax'))
+model.compile(loss=keras.losses.categorical_crossentropy,
+              optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
+
+```
+
+## Convolutional Neural Networks | Multiple dropouts + 2 poolings {.flexbox .vcenter}
+
+<!-- questo ci ha messo circa 1 minuto per epoch... quindi -->
+
+133s/epoch - 20 epochs
+
+<img src="images/model_1_accuracy.png" width=450>
+<img src="images/model_1_loss.png" width=450>
+
+**Test loss**: 0.43
+**Test accuracy**: 0.87
+
+<!-- data augmentation for overfitting 
+https://www.learnopencv.com/image-classification-using-convolutional-neural-networks-in-keras/-->
+
 
 
 ## Other trials | Mimicking the TensorFlow model{.build}
