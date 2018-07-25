@@ -1,6 +1,6 @@
 ---
-title: 
-author: Ginevra Carbone
+title: Speech recognition using CNN's
+author: Ginevra Carbone, Domagoj Korais, Francesco Franchina
 date: "*Luglio 2018*"
 output:
   ioslides_presentation:
@@ -15,10 +15,131 @@ editor_options:
 always_allow_html: yes
 ---
 
+
+## Deep learning for speech recognition, an overview
+
+- There are a lot of different architectures used for speech recognition:
+
+- Recurrent Neural Network (RNN)
+- Restricted Boltzmann Machines(RBM)
+- Deep Belief Network(DBN)
+- Deep Convex Nets(DCN)
+- Deep Neural Networks(DNN)
+- Deep AutoEncoder
+- Deep Stacking Network(DSN)
+- Convolutional Neural Network(CNN)
+
+- We used Convolutional Neural Networks because based on Kaggle competitions results they looked promising.
+
+## CNN's for speech recognition
+
+
+<div align="center">
+<img src="./images/features.png" width="800" height="200" />
+
+</div>
+
+So there are two crucial steps: extracting the features and building che convnet.
+
+
+## Types of possible features useful for CNNs:{.build}
+
+- Time domain : raw audio data (intensity vs time)
+- Frequency domain : spectrogram
+- MFCC : Mel frequency Cepstral coefficients
+
+
+
+
+
+## MFCC's computation steps{.build}
+
+- Divide the signal in uniformly spaced windows (30ms each)
+- Compute the power spectrum of each interval
+- Apply the mel filterbank to the power spectrum (mimics human cochlea).
+The spacing is narrower for low frequencies and wider for high ones.
+- Take the logarithm (we are not linear listeners)
+- Compute the Discrete cosine transform to decorrelate the filterbanks
+
+- Why it's useful? Because we pass from a 16000 elements of a 16KHz sampled 1 sec length signal to a 32*32 array!
+
+## A more intuitive view
+
+<div align="center">
+<img src="./images/mfcc.jpg" width="700" height="500" />
+
+</div>
+
+
+##Python translation of all this:
+
+
+
+```{r, engine='python', echo = TRUE,eval=FALSE}
+
+import librosa
+
+wave = librosa.load("file_audio_path", mono=True, sr=None)
+mfcc = librosa.feature.mfcc(wave, sr=16000)
+
+
+```
+- Librosa is a python package for music and audio analysis, the used function is build upon Scipy for the FFT computation.
+
+- We repeated this operation for every file and saved the results as numpy arrays.
+
+
+
+## The **Speech Commands Dataset**
+The **Speech Commands Dataset** consists on 64000 audio files, of 1 second length, divided into 35 different classes.
+The words are simple english words.
+We used the version 0.0.2 of the dataset released in the 2018. It's a bigger and cleaner version of the 2017 one. 
+
+
+<div align="center">
+<img src="./images/dataset_info.png" width="700" height="450" />
+
+</div>
+
+##An example of preprocessing from our dataset:
+
+
+
+<div align="center">
+<img src="./images/sound.png" width="800" height="300" />
+<img src="./images/mfccs.png" width="800" height="150" />
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Convolutional Neural Networks {.flexbox .vcenter}
 
 <div align='center'>
-Now that each audio file has been converted into an image we can apply CNNs for **image classification** of the MFCCs.
+Now that each audio file has been converted into an bidimensional array we can apply CNNs for **image classification** of the MFCCs.
 
 <img src="images/spectrogram_cnn.png" width=600>
 </div>
@@ -315,7 +436,12 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 <img src="images/model_3_accuracy.png" width=450>
 <img src="images/model_3_loss.png" width=450>
 
+##Testing the results on unseen data
 
+
+## Stuff that we tried but didn't worked:{.build}
+-Transfer learning
+-Working on spectrograms
 
 
 
