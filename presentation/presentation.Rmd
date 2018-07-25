@@ -420,7 +420,108 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 <img src="images/model_3_loss.png" width=450>
 
 
+## Other trials | Mimicking the TensorFlow model
+
+### The aim
+
+<img src="images/copying.png" width=450>
+
+Trying to reproduce TensorFlow's model is good:
+ - as reference in comparing the obtained accuracy
+ - to study the structure engineered by Google
+ - to understand what appens under the hood of Keras
+
+[Link to TensorFlow's article](https://www.tensorflow.org/tutorials/sequences/audio_recognition)
 
 
+## Other trials | Mimicking the TensorFlow model
+
+### The translation
+
+``` python
+  model = Sequential()
+
+  model.add(Conv2D(64, (20, 8), activation='relu', input_shape=input_shape))
+  model.add(Dropout(0.25))
+  model.add(MaxPooling2D(pool_size=(2, 2)))
+
+  model.add(Conv2D(64, (10, 4), activation='relu'))
+  model.add(Dropout(0.25))
+  model.add(MaxPooling2D(pool_size=(2, 2)))
+
+  model.add(Flatten())
+  model.add(Dense(n_output, activation='softmax'))
+
+  model.compile(loss=keras.losses.categorical_crossentropy,
+      optimizer=keras.optimizers.SGD(), metrics=['accuracy'])
+
+```
+
+## Other trials | Mimicking the TensorFlow model
+
+## The result
+
+<img src="image.png" width=450>
+
+## Other trials | Operating with transfer learning
+
+### The motivations
+
+ - to explore this famous technique
+ - to bet
 
 
+## Other trials | Operating with transfer learning
+
+### The method (with MFCC)
+
+```
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_1 (Conv2D)            (None, 18, 9, 3)          84        
+_________________________________________________________________
+up_sampling2d_1 (UpSampling2 (None, 72, 36, 3)         0         
+_________________________________________________________________
+PRETRAINED NET (Model)       multiple                  ---  
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 6144)              0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 128)               786560    
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 128)               0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 36)                4644      
+=================================================================
+```
+
+
+## Other trials | Operating with transfer learning
+
+### The results
+
+#### Spoiler alert: it didn't work
+
+<img src="images/acc_out_trlrn_vgg.png" width=450>
+VGG16
+
+<img src="images/acc_out_trlrn_mobilenet.png" width=450>
+MobileNet
+
+<img src="images/acc_out_trlrn_resnet.png" width=450>
+ResNet50
+
+
+## Other trials | Working directly with spectrograms
+
+### The goal
+
+ - reduce the complexity of the preprocessing
+ - let the network guess the best structure out of the almost raw material
+ - keeping the solution easy
+
+## Other trials | Working directly with spectrograms
+
+### The result
+
+<img src="image.png" width=450>
