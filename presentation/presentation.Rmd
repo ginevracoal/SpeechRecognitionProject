@@ -436,7 +436,12 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 <img src="images/model_3_accuracy.png" width=450>
 <img src="images/model_3_loss.png" width=450>
 
+##Testing the results on unseen data
 
+
+## Stuff that we tried but didn't worked:{.build}
+-Transfer learning
+-Working on spectrograms
 
 
 
