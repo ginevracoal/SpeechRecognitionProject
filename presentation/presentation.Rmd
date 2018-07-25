@@ -1,5 +1,5 @@
 ---
-title: Speech recognition using CNN's
+title: CNN based Speech Recognition
 author: Ginevra Carbone, Domagoj Korais, Francesco Franchina
 date: "*Luglio 2018*"
 output:
@@ -35,8 +35,7 @@ always_allow_html: yes
 
 
 <div align="center">
-<img src="./images/features.png" width="800" height="200" />
-
+<img src="./images/features.png">
 </div>
 
 So there are two crucial steps: extracting the features and building che convnet.
