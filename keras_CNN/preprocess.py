@@ -1,4 +1,4 @@
-# import librosa
+import librosa
 import os
 from sklearn.model_selection import train_test_split
 from keras.utils import to_categorical
@@ -25,7 +25,7 @@ def get_labels(path=DATA_PATH):
 
 
 # Handy function to convert wav2mfcc
-def wav2mfcc(file_path, max_len=11):
+def wav2mfcc(file_path, max_len=32):
     wave, sr = librosa.load(file_path, mono=True, sr=None)
     
     # downsampling
@@ -46,7 +46,7 @@ def wav2mfcc(file_path, max_len=11):
     return mfcc
 
 
-def save_data_to_array(path=DATA_PATH, max_len=11):
+def save_data_to_array(path=DATA_PATH, max_len=32):
     labels, _, _ = get_labels(path)
 
     for label in labels:
@@ -122,4 +122,4 @@ def load_dataset(path=DATA_PATH):
     return dataset[:100]
 
 
-# print(prepare_dataset(DATA_PATH))
+
