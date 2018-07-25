@@ -2,6 +2,7 @@ from preprocess import *
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D, AveragePooling2D
+from keras.layers.normalization import BatchNormalization
 from keras.utils import to_categorical
 from keras.models import model_from_json
 from keras.models import load_model
@@ -38,18 +39,18 @@ def save_model(trained_model, model_name):
 
 def load_model(model_name):
     ## load the history
-    history = open(path + model_name + '_history.json', 'r')
+    history = open(path + str(model_name) + '_history.json', 'r')
     history_dict = json.load(history)
     history.close()
 
     ## load json and create model
-    json_file = open(path + model_name + '.json', 'r')
+    json_file = open(path + str(model_name) + '.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
     
     ## load weights into new model
-    loaded_model.load_weights(path + model_name + '.h5')
+    loaded_model.load_weights(path + str(model_name) + '.h5')
 
     print("Loaded model from disk")
 
@@ -81,7 +82,9 @@ def plot_loss(history):
 # this is the example from here: 
 # https://blog.manash.me/building-a-dead-simple-word-recognition-engine-using-convnet-in-keras-25e72c19c12b
 def model_1():
+
     model = Sequential()
+    model.add(BatchNormalization())
     # 32 2x2 neurons -> 32 19x10 objects
     model.add(Conv2D(32, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
     # 48 2x2 neurons -> 48 18x9 objects
@@ -111,9 +114,11 @@ def model_1():
     return model
 
 # this one is inspired to vgg16
+# questo è buono ma lento, sta andando...
 def model_2():
 
     model = Sequential()
+    model.add(BatchNormalization())
 
     model.add(Conv2D(64, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
     model.add(Conv2D(64, kernel_size=kernel_size, activation='relu'))    
@@ -134,9 +139,11 @@ def model_2():
     
     return model
 
+# questo è lentissimo, dovuto killare
 def model_3():
 
     model = Sequential()
+    model.add(BatchNormalization())
 
     model.add(Conv2D(32, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
     model.add(Conv2D(64, kernel_size=kernel_size, activation='relu'))    
@@ -164,8 +171,8 @@ def model_3():
 
 def model_4():
 
-    
     model = Sequential()
+    model.add(BatchNormalization())  
 
     model.add(Conv2D(32, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
     model.add(Conv2D(64, kernel_size=kernel_size, activation='relu'))   
@@ -199,6 +206,9 @@ def model_4():
 def model_5():
 
     model = Sequential()
+
+    model.add(BatchNormalization(axis=-1))
+
 
     model.add(Conv2D(64, kernel_size=kernel_size, activation='relu', input_shape=input_shape))
     model.add(Conv2D(64, kernel_size=kernel_size, activation='relu'))    
