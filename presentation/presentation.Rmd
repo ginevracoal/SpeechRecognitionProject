@@ -476,19 +476,34 @@ Trying to reproduce TensorFlow's model is good:
 
 ## The result
 
-<img src="image.png" width=450>
+<img src="images/tfvero.png" width=450>
+
+Considering that in the reference article the accuracy on the test set is between 80% and 90%, we can state we succeeded in porting the TensorFlow model!
 
 ## Other trials | Operating with transfer learning{.build}
 
 ### The motivations
 
  - to explore this famous technique
- - to bet
+ - to experiment other techniques
+ - to bet among us
 
 
 ## Other trials | Operating with transfer learning{.build}
 
-### The method (with MFCC)
+### The method
+
+Used 3 network pre-trained on ImageNet:
+
+- VGG16 (shallow but with lots of parameters)
+- ResNet50 (deep network with less parameters)
+- MobileNet (light network with "few" parameters)
+
+We used MFCC to fine-tune them. 
+
+## Other trials | Operating with transfer learning{.build}
+
+### The structure
 
 ```
 _________________________________________________________________
@@ -517,14 +532,7 @@ dense_2 (Dense)              (None, 36)                4644
 
 #### Spoiler alert: it didn't work
 
-<img src="images/acc_out_trlrn_vgg.png" width=450>
-VGG16
-
-<img src="images/acc_out_trlrn_mobilenet.png" width=450>
-MobileNet
-
-<img src="images/acc_out_trlrn_resnet.png" width=450>
-ResNet50
+<img src="images/acc_out_trlrn.png" width="100%">
 
 
 ## Other trials | Working directly with spectrograms{.build}
@@ -539,4 +547,6 @@ ResNet50
 
 ### The result
 
-<img src="image.png" width=450>
+<img src="images/acc_out_spectrogram.png" width=450>
+
+Training the same clone of the TensorFlow's model it seems not to like the row spectrograms
