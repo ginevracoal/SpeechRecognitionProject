@@ -439,6 +439,7 @@ https://www.learnopencv.com/image-classification-using-convolutional-neural-netw
 
 ### The aim
 
+<div class='columns-2'>
 <img src="images/copying.png" width=450>
 
 Trying to reproduce TensorFlow's model is good:
@@ -447,7 +448,7 @@ Trying to reproduce TensorFlow's model is good:
  - to understand what appens under the hood of Keras
 
 [Link to TensorFlow's article](https://www.tensorflow.org/tutorials/sequences/audio_recognition)
-
+</div>
 
 ## Other trials | Mimicking the TensorFlow model{.build}
 
@@ -475,8 +476,9 @@ Trying to reproduce TensorFlow's model is good:
 ## Other trials | Mimicking the TensorFlow model{.build}
 
 ## The result
-
-<img src="images/tfvero.png" width=450>
+<div align='center'>
+<img src="images/tfvero.png" width=800>
+</div>
 
 Considering that in the reference article the accuracy on the test set is between 80% and 90%, we can state we succeeded in porting the TensorFlow model!
 
@@ -545,8 +547,10 @@ dense_2 (Dense)              (None, 36)                4644
 
 ## Other trials | Working directly with spectrograms{.build}
 
-### The result
-
+### The final result
+<div align='center'>
 <img src="images/acc_out_spectrogram.png" width=450>
-
+</div>
 Training the same clone of the TensorFlow's model it seems not to like the row spectrograms
+
+# Thank you
