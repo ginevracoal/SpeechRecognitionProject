@@ -11,7 +11,7 @@ def save_model(model, filename):
     json.dump(model.history.history, open(filename + '_history.json','w'))
 
 class2int_map = {
-    'speech': 0,
+    'forward': 0,
     'bed': 1,
     'go': 2,
     'zero': 3,
@@ -45,8 +45,7 @@ class2int_map = {
     'off': 31,
     'three': 32,
     'house': 33,
-    'five': 34,
-    'forward': 35
+    'five': 34
 }
 
 class2int_inv_map = {v: k for k, v in class2int_map.items()}

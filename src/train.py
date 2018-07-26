@@ -8,38 +8,6 @@ import utils
 import models
 import preprocessing
 
-class deprecated_SamplesVector(keras.utils.Sequence):
-
-    def __init__(self, x, y, transformation_type, batch_size=25):
-        self.x, self.y = x, y
-        self.batch_size = batch_size
-        if transformation_type == 'spectrogram':
-            self.sampleshape = (129, 71, 1)
-            self.transformation_func = preprocessing.wav2spectrogram
-        elif transformation_type == 'lgspectrogram':
-            self.sampleshape = (1025, 71, 1)
-            self.transformation_func = preprocessing.wav2lgspectrogram
-        elif transformation_type == 'mfcc':
-            self.sampleshape = (20, 11, 1)
-            self.transformation_func = preprocessing.wav2mfcc
-        else:
-            raise NotImplementedError
-
-    def __len__(self):
-        return int(np.ceil(len(self.x) / float(self.batch_size)))
-
-    def __getitem__(self, idx):
-        batch_x = []
-        batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
-
-        for x in self.x[idx * self.batch_size:(idx + 1) * self.batch_size]:
-            sample = self.transformation_func(x)
-            padding_size = self.sampleshape[1] - sample.shape[1]
-            if padding_size:
-                sample = np.pad(sample, ((0, 0), (0, padding_size)), 'constant')
-            batch_x.append(sample.reshape(self.sampleshape))
-
-        return np.array(batch_x), np.array(batch_y)
         
 class SamplesVector(keras.utils.Sequence):
 
@@ -121,7 +89,7 @@ def build_model(input_shape, n_output, name='simple'):
 
 config = {
     'data_path': '/galileo/home/userexternal/ffranchi/speech',
-    'n_classes': 36,
+    'n_classes': 35,
     'split_seed': 44,
     'data_func': 'mfcc',
     'model_name': 'simple',
@@ -137,7 +105,7 @@ dataset = load_data(config['data_path'], config['data_func'], config['n_classes'
 train_x, test_x, train_y, test_y = \
         train_test_split(dataset['x'], dataset['y'], test_size=.2, random_state=config['split_seed'])
 
-train_set = SamplesVector(train_x, train_y, config['data_func'], batch_size=100)
+train_set = SamplesVector(train_x, train_y, config['data_func'])
 test_set = SamplesVector(test_x, test_y, config['data_func'])
 
 model = build_model(train_set.sampleshape, config['n_classes'], name=config['model_name'])
